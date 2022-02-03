@@ -5,6 +5,13 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 editor_options:
   chunk_output_type: console
+knit: (function(input, ...) {
+    rmarkdown::render(
+      input,
+      output_file = 'index',
+      output_dir='../'
+    )
+  })
 ---
 
 ```{r setup, warning=FALSE, message=FALSE, echo=FALSE}
