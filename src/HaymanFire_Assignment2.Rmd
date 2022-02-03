@@ -1,18 +1,30 @@
+---
+title: "HaymanFire_Assignment2"
+author: "Alex Siggers"
+date: "2/2/2022"
+output: html_document
+---
+
+```{r setup, ,warning=F, message=F, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(tidyr)
 library(ggthemes)
 library(lubridate)
-library(ggp)
-
-# Now that we have learned how to munge (manipulate) data
-# and plot it, we will work on using these skills in new ways
-
+library(ggpubr)
+```
 
 ####-----Reading in Data and Stacking it ----- ####
 #Reading in files
+
+```{r, echo=FALSE}
 files <- list.files('data',full.names=T)
+```
+
 
 #Read in individual data files
+
+```{r, echo=FALSE, include=FALSE}
 ndmi <- read_csv(files[1]) %>% 
   rename(burned=2,unburned=3) %>%
   mutate(data='ndmi')
@@ -24,6 +36,9 @@ ndsi <- read_csv(files[2]) %>%
 ndvi <- read_csv(files[3])%>% 
   rename(burned=2,unburned=3) %>%
   mutate(data='ndvi')
+
+```
+
 
 # Stack as a tidy dataset
 full_long <- rbind(ndvi,ndmi,ndsi) %>% 
@@ -109,7 +124,8 @@ ggplot(aes(x=MeanNDSI, y=MeanNDVI))+
 
 ## End code for question 2 -----------------
 
-#After taking averages and fitting to a linear
+#When plotting all points, a negative correlation between snow cover and 
+#vegetative cover appears. However, after taking averages and fitting to a linear
 #model, it appears that there is a slightly positive correlation.
 
 ###### Question 3 ####
@@ -249,3 +265,4 @@ ggplot(data=Q5, aes(x=month, y=MeanNDSI)) +
            fill = "lightblue",
            color = "blue")+
   ylab("Mean NDSI")
+
