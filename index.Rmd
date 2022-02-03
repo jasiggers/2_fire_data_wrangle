@@ -3,8 +3,6 @@ title: "Hayman Fire Recovery"
 author: "Alex Siggers"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
-editor_options:
-  chunk_output_type: console
 ---
 
 ```{r setup, warning=F,message=F,echo=F}
@@ -18,9 +16,9 @@ knitr::opts_knit$set(root.dir='..')
 ```
 
 
-```{r dataread, warning=F,message=F,echo=F}
-####-----Reading in Data and Stacking it ----- ####
+```{r dataread, warning=F, message=F, echo=F}
 #Reading in files
+
 files <- list.files('data',full.names=T)
 
 
@@ -42,15 +40,11 @@ ndvi <- read_csv(files[3])%>%
 full_long <- rbind(ndvi,ndmi,ndsi) %>%
   gather(key='site',value='value',-DateTime,-data) %>%
   filter(!is.na(value))
+
 ```
 
-## Question 1) 
 
-What is the correlation between NDVI and NDMI? - here I want you to
-convert the full_long dataset in to a wide dataset using the 
-function "spread" and then make a plot that shows the correlation s a
-function of if the site was burned or not (x axis should be ndmi)
-You should exclude winter months and focus on summer months
+1) What is the correlation between NDVI and NDMI?
 
 ```{r, echo=FALSE, warning=F, message=F}
 
@@ -71,15 +65,11 @@ ggplot(summer_only,aes(x=ndmi,y=ndvi,color=site)) +
   theme(legend.position=c(0.8,0.8))
 ```
 
-There appears to be a positive correlation between precipitation and vegetation in the summer months at all sites on average.
+There appears to be a consistent positive correlation between NDMI (vegetation water content) and NDVI (vegetative cover) in the summer months at all sites on average. This correlation is stronger in the burned sites, which may be driven largely by post-fire succession. 
 
-
-## Question 2 
 
 2) What is the correlation between average NDSI (normalized
  snow index) for January - April and average NDVI for June-August?
-In other words, does the previous year's snow cover influence vegetation
- growth for the following summer?
  
 ```{r,  echo=FALSE, warning=F, message=F}
 
@@ -118,15 +108,17 @@ Q2 %>%
   filter_if(is.numeric,all_vars(!is.na(.))) %>%
 ggplot(aes(x=MeanNDSI, y=MeanNDVI))+
   geom_point()+
-  geom_smooth(method="lm")
+  geom_smooth(method="lm")+
+   scale_color_few() +  
+  labs(title="Influence of Snow", x="Average NDVI", y="Average NDSI") +
+  theme(plot.title = element_text(hjust = 0.5))
   
 ```
  
-After taking averages and fitting to a linear model, it appears that there is a slightly positive correlation.
+After taking averages and fitting to a linear model, it appears that there is a slightly positive correlation. This leads me to believe that increased winter snowfall may encourage vegetative growth in the concurrent summer months. 
 
-## Q3
 
-How is the snow effect from question 2 different between pre- and post-burn
+3) How is the snow effect from question 2 different between pre- and post-burn
 and burned and unburned? 
 
 ```{r, echo=FALSE, warning=F, message=F}
@@ -141,27 +133,32 @@ Q3Post= Q2 %>%
 
 ## Plotting Averages ##
 
-ggplot(data=Q3Pre, aes(x=MeanNDSI, y=MeanNDVI, color=site))+
+ggplot(data=Q3Pre, aes(x=MeanNDSI, y=MeanNDVI, color=site)) +
   geom_point() +
   geom_smooth(method="lm") +
   theme_few() + 
   scale_color_few() + 
-  theme(legend.position="bottom")
+  theme(legend.position="bottom") +
+  labs(title="Pre-Burn", x="Average NDSI", y="Average NDVI") +
+  theme(plot.title = element_text(hjust = 0.5))
+  
 
 ggplot(data=Q3Post, aes(x=MeanNDSI, y=MeanNDVI, color=site))+
   geom_point() +
   geom_smooth(method="lm") +
   theme_few() + 
   scale_color_few() + 
-  theme(legend.position="bottom")
+  theme(legend.position="bottom") +
+  labs(title="Post-Burn", x="Average NDSI", y="Average NDVI") +
+  theme(plot.title = element_text(hjust = 0.5))
+  
 
 ```
 
-The averages of the burned sites were driving the positive correlation prior to the burn occurring. After the burn, these sites began to show a negative correlation between snowfall and vegetative cover, while the unburned remained fairly unaffected. When incorporating all values, he negative correlation between snowfall and vegetativecover remains consistent in all sites, even following the burn. There is a strict differentiation between the burned and unburned sites, but that is due to the difference in amount of NDVI.
+The averages of the burned sites were driving the positive correlation prior to the burn occurring. After the burn, these sites began to show a negative correlation between snowfall and vegetative cover, while the unburned remained fairly unaffected. When incorporating all values, the negative correlation between snowfall and vegetative cover remains consistent in all sites, even following the burn. There is a strict differentiation between the burned and unburned sites, but that is due to the difference in amount of NDVI.
 
-## Question 4
 
-What month is the greenest month on average? 
+4) What month is the greenest month on average? 
 
 ```{r,  echo=FALSE, warning=F, message=F}
 
@@ -196,7 +193,9 @@ ggplot(data=Q4, aes(x=month, y=MeanNDVI)) +
            aes(x=month, y=MeanNDVI),
            fill = "lightgreen",
            color = "green")+
-  ylab("Mean NDVI")
+  labs(title="Average of All Plots", x="Month", y="Average NDVI") +
+  theme(plot.title = element_text(hjust = 0.5))
+  
 
 ggplot(data=Q4Post, aes(x=month, y=MeanNDVI)) +
   geom_col(fill= "lightblue",
@@ -205,16 +204,15 @@ ggplot(data=Q4Post, aes(x=month, y=MeanNDVI)) +
            aes(x=month, y=MeanNDVI),
            fill = "lightgreen",
            color = "green")+
-  ylab("Mean NDVI")
-
+ labs(title="Post-Fire Burned Averages", x="Month", y="Average NDVI") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 
 August is the greenest month across all plots and remains so in burned plots following the fire.
 
-## Question 5) 
 
-What month is the snowiest on average?
+5) What month is the snowiest on average?
 
 ```{r,  echo=FALSE, warning=F, message=F}
 
@@ -238,11 +236,11 @@ ggplot(data=Q5, aes(x=month, y=MeanNDSI)) +
            aes(x=month, y=MeanNDSI),
            fill = "lightblue",
            color = "blue")+
-  ylab("Mean NDSI")
-
+ labs(title="Snowy Months", x="Month", y="Average NDSI") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 
-January is the snowiest month on average.
+January is the snowiest month on average across all plots (as outlined in blue).
 
 
